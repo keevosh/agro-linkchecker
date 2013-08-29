@@ -134,8 +134,8 @@ public class AppRunner {
         Option mode = Option.builder("mode").argName("mode").hasArg().desc("the mode that the linkchecker is about to run. use 'support' for Suport mode, use 'live' for new incoming files.").required().build();
         Option fileFormat = Option.builder("format").argName("fileFormat").hasArg().desc("the file format (AKIF, AGRIF etc) that the linkchecker is going to check.").required().build();
         Option rootFolderPath = Option.builder("rootFolder").argName("rootFolderPath").hasArg().desc("the folder where the files are located.").required().build();
-        Option successFolderPath = Option.builder("successFolder").argName("successFolderPath").hasArg().desc("the folder where the OK files will be transfered in case of Support mode.").required(false).build();
-        Option errorFolderPath = Option.builder("errorFolder").argName("errorFolderPath").hasArg().desc("the folder where the NOT OK files will be transfered in case of Support mode.").required(false).build();
+        Option successFolderPath = Option.builder("successFolder").argName("successFolderPath").hasArg().desc("the folder where the OK files will be transfered in case of Active mode.").required(false).build();
+        Option errorFolderPath = Option.builder("errorFolder").argName("errorFolderPath").hasArg().desc("the folder where the NOT OK files will be transfered in case of Active mode.").required(false).build();
 
         Options options = new Options();
         options.addOption(help);
@@ -179,7 +179,7 @@ public class AppRunner {
                 return null;
             }
         } catch (ParseException e) {
-            formatter.printHelp("EmailScrumer", options, true);
+            formatter.printHelp("LinkChecker", options, true);
             log.trace("Parsing failed.  Reason: ", e);
             return null;
         }

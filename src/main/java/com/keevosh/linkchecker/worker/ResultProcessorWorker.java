@@ -3,8 +3,9 @@
  */
 package com.keevosh.linkchecker.worker;
 
-import com.keevosh.linkchecker.LinkCheckerOptions;
 import com.keevosh.linkchecker.dto.FileDto;
+import com.keevosh.linkchecker.metrics.MetricsRegistryHolder;
+import com.keevosh.linkchecker.options.LinkCheckerOptions;
 import com.keevosh.linkchecker.service.ResultProcessorService;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,12 +19,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ResultProcessorWorker extends Thread {
 
-    private final static Logger log = LoggerFactory.getLogger(ResultProcessorWorker.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(ResultProcessorWorker.class);
+    private static final long POLL_TIMEOUT = 5;
+    
     private final LinkedBlockingQueue<FileDto> inputQueue;
     private final LinkCheckerOptions options;
-    private long successCounter = 0;
-    private long errorCounter = 0;
     private boolean work = true;
 
     /**
@@ -42,31 +42,31 @@ public class ResultProcessorWorker extends Thread {
      */
     @Override
     public void run() {
-        log.info("ResultProcessorWorker {} starting...", this.getName());
+        LOG.info("ResultProcessorWorker {} starting...", this.getName());
 
         try {
             FileDto article = null;
 
             while (work) {
-                while ((article = inputQueue.poll(2L, TimeUnit.SECONDS)) != null) {
+                while ((article = inputQueue.poll(POLL_TIMEOUT, TimeUnit.SECONDS)) != null) {
                     try {
                         if (article.isContainsError()) {
-                            errorCounter++;
+                            MetricsRegistryHolder.getCounter("FILES[ERROR]").inc();
                         } else {
-                            successCounter++;
+                            MetricsRegistryHolder.getCounter("FILES[SUCCESS]").inc();
                         }
                         ResultProcessorService.getInstance().processResult(article, options);
-                        log.trace("Success processed ArticleDto : {}", article);
+                        LOG.trace("Success processed ArticleDto : {}", article);
                     } catch (Exception e) {
-                        log.error("Failed to process result ArticleDto : {}", article, e);
+                        LOG.error("Failed to process result ArticleDto : {}", article, e);
                     }
                 }
-                log.info("Nothing found to process waiting 2 sec. No stop signal recieved, will wait more.");
+                LOG.info("Nothing found to process waiting 5 sec. No stop signal recieved, will wait more.");
             }
 
-            log.info("Nothing else found in the queue exiting... Processed {} files. Found {} ok and {} errors.", new Object[] { successCounter + errorCounter, successCounter, errorCounter });
+            LOG.info("Nothing else found in the queue exiting...");
         } catch (InterruptedException e) {
-            log.error("Error in ResultProcessorWorker", e);
+            LOG.error("Error in ResultProcessorWorker", e);
         }
     }
 

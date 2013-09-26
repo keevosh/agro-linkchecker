@@ -10,6 +10,7 @@ public class UrlDto {
     private String domain;
     private Family statusFamily;
     private int responseStatusCode;
+    private String redirectsToUrl;
 
     /**
      * @param domain
@@ -20,7 +21,7 @@ public class UrlDto {
         this.domain = domain;
         this.url = url;
     }
-    
+
     /**
      * @param domain
      * @param url
@@ -93,7 +94,23 @@ public class UrlDto {
         this.statusFamily = statusFamily;
     }
 
-    /* (non-Javadoc)
+    /**
+     * @return the redirectsToUrl
+     */
+    public String getRedirectsToUrl() {
+        return redirectsToUrl;
+    }
+
+    /**
+     * @param redirectsToUrl
+     *            the redirectsToUrl to set
+     */
+    public void setRedirectsToUrl(String redirectsToUrl) {
+        this.redirectsToUrl = redirectsToUrl;
+    }
+
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

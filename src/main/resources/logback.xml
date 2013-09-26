@@ -1,17 +1,93 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <!--  Console APPENDER -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
+	<!-- Console APPENDER -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
 
-    <logger name="com.keevosh" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-    
-    <root level="WARN">
-        <appender-ref ref="STDOUT" />
-    </root>
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./linkchecker.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>linkchecker.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="METRICS_FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./metrics.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>metrics.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd}, %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="URL_FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./all_urls.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>all_urls.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd}, %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="REDIRECTIONS_FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./redirection_urls.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>redirection_urls.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd}, %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="linkchecker.metrics.log" level="DEBUG" additivity="false">
+		<appender-ref ref="METRICS_FILE" />
+	</logger>
+
+	<logger name="url.redirection.log" level="DEBUG" additivity="false">
+		<appender-ref ref="REDIRECTIONS_FILE" />
+	</logger>
+
+	<logger name="url.check.log" level="DEBUG" additivity="false">
+		<appender-ref ref="URL_FILE" />
+	</logger>
+
+	<logger name="com.keevosh" level="INFO" additivity="false">
+		<appender-ref ref="FILE" />
+	</logger>
+
+	<root level="WARN">
+		<appender-ref ref="FILE" />
+	</root>
 </configuration>

@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
  */
 public class LinkCheckerWorker extends Thread {
 
-    private final static Logger log = LoggerFactory.getLogger(LinkCheckerWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinkCheckerWorker.class);
+    private static final long POLL_TIMEOUT = 1;
+    private static final long OFFER_TIMEOUT = 5;
 
     private final LinkedBlockingQueue<FileDto> inputQueue;
     private final LinkedBlockingQueue<FileDto> outputQueue;
@@ -39,33 +41,28 @@ public class LinkCheckerWorker extends Thread {
      */
     @Override
     public void run() {
-        log.info("Worker {} starting...", this.getName());
+        LOG.info("Worker {} starting...", this.getName());
 
         try {
             FileDto fileDto = null;
 
             while (work) {
-                while ((fileDto = inputQueue.poll(1L, TimeUnit.SECONDS)) != null) {
-
+                while ((fileDto = inputQueue.poll(POLL_TIMEOUT, TimeUnit.SECONDS)) != null) {
                     try {
-                        if (fileDto.isContainsError()) {
-                            log.debug("File with id {} contains already errors, skipping...", fileDto.getIdentifier());
-                        } else {
-                            fileDto = LinkCheckerService.getInstance().checkFileLocations(fileDto);
-                            log.debug("Success processed FileDto : {}", fileDto);
-                        }
+                        fileDto = LinkCheckerService.getInstance().checkFileLocations(fileDto);
+                        LOG.debug("Success processed FileDto : {}", fileDto);
                     } catch (Exception e) {
-                        log.debug("Failed to process FileDto : {}", fileDto);
+                        LOG.debug("Failed to process FileDto : {}", fileDto);
                     }
 
-                    outputQueue.offer(fileDto, 2, TimeUnit.SECONDS);
+                    outputQueue.offer(fileDto, OFFER_TIMEOUT, TimeUnit.SECONDS);
                 }
-                log.info("Nothing found to process waiting 1 sec. No stop signal recieved, will wait more.");
+                LOG.info("Nothing found to process waiting 1 sec. No stop signal recieved, will wait more.");
             }
 
-            log.info("Nothing else found in the queue exiting...");
+            LOG.info("Nothing else found in the queue exiting...");
         } catch (InterruptedException e) {
-            log.error("Error in PageScrumWorker", e);
+            LOG.error("Error in PageScrumWorker", e);
         }
     }
 
